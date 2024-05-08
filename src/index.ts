@@ -2,6 +2,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import paymentManager from './routes/payment_manger';
 // import transactionSimulationRouter from './routes/transactionSimulationRouter';
 // import userRouter from './routes/userRouter';
 // import promptRouter from './routes/promptRouter';
@@ -16,7 +17,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false }));
 
 // creating routes
-// app.use("/api", transactionSimulationRouter);
+app.use("/api", paymentManager);
 
 
 app.listen(process.env.PORT, () => {
