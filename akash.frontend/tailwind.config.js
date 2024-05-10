@@ -11,6 +11,7 @@ module.exports = {
       colors: {
         'akash-red': '#ff414c',
         'akash-gray': '#f9f9f9', // Light background for the social media button area
+        'akash-red-dark': '#FF4D57',
         primary: '#ff414c', // accent color
         'primary-text': '#11181C', // primary text color
         'secondary-text': '#6b7689', // secondary text color
