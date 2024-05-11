@@ -46,7 +46,7 @@ const Login: React.FC = () => {
   }, [connectionStatus])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-page">
+    <div className="flex items-center justify-center min-h-screen " >
       <ThirdwebProvider>
         <ConnectEmbed
           client={client}
