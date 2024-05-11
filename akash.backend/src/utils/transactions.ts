@@ -10,7 +10,7 @@ const chainId = "sandbox-01";
 const privateKey = "c3d4c00caea2bf3842e6b5638425c1f177c1b22407b0e7e0a1783666cca7fa60";
 
 // Function to send AKT tokens
-async function sendAKT( recipientAddress, amount) {
+export async function sendAKT( recipientAddress: string, amount: string) {
   // Create a wallet with the private key
   // const privateKeyBytes = new Uint8Array(Buffer.from(privateKey, 'base64')); // Convert from base64 to Uint8Array
 
@@ -60,9 +60,9 @@ async function sendAKT( recipientAddress, amount) {
 
 
 // Example usage
-const recipientAddress = "akash1pa0ckdmr35ck2eem7a8ejrc36dllka3h9a46hp"; // Recipient's address
-const amount = "1000000"; // Amount of AKT in the smallest unit (uakt)
+// const recipientAddress = "akash1pa0ckdmr35ck2eem7a8ejrc36dllka3h9a46hp"; // Recipient's address
+// const amount = "1000000"; // Amount of AKT in the smallest unit (uakt)
 
-sendAKT( recipientAddress, amount)
-  .then((result) => console.log("Transaction successful:", result))
-  .catch((error) => console.error("Error sending AKT:", error));
+// sendAKT( recipientAddress, amount)
+//   .then((result) => console.log("Transaction successful:", result))
+//   .catch((error) => console.error("Error sending AKT:", error));
