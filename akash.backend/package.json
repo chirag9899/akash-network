@@ -7,7 +7,7 @@
     "compile": "tsc && node dist/index.js",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "./node_modules/nodemon/bin/nodemon.js -e ts  --exec \"npm run compile\""
+    "dev": "nodemon -e ts --exec \"npm run compile\""
   },
   "keywords": [],
   "author": "",
