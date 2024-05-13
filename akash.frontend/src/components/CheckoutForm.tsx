@@ -1,97 +1,58 @@
-import React, { useEffect, useState } from "react";
-import {
-  PaymentElement,
-  useStripe,
-  useElements
-} from "@stripe/react-stripe-js";
-import { StripePaymentElementOptions } from "@stripe/stripe-js";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function CheckoutForm() {
-  const stripe = useStripe();
-  const elements = useElements();
+const CheckoutForm = () => {
+  const navigate = useNavigate();
+  const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState('');
 
-  const [message, setMessage] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!stripe) {
-      return;
-    }
-
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret"
-    );
-
-    if (!clientSecret) {
-      return;
-    }
-
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      switch (paymentIntent && paymentIntent.status) {
-        case "succeeded":
-          setMessage("Payment succeeded!");
-          break;
-        case "processing":
-          setMessage("Your payment is processing.");
-          break;
-        case "requires_payment_method":
-          setMessage("Your payment was not successful, please try again.");
-          break;
-        default:
-          setMessage("Something went wrong.");
-          break;
-      }
-    });
-  }, [stripe]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      // Stripe.js hasn't yet loaded.
-      // Make sure to disable form submission until Stripe.js has loaded.
-      return;
-    }
-
-    setIsLoading(true);
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        // Make sure to change this to your payment completion page
-        return_url: "http://localhost:3000",
-      },
-    });
-
-    // This point will only be reached if there is an immediate error when
-    // confirming the payment. Otherwise, your customer will be redirected to
-    // your `return_url`. For some payment methods like iDEAL, your customer will
-    // be redirected to an intermediate site first to authorize the payment, then
-    // redirected to the `return_url`.
-    if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message ?? "");
-    } else {
-      setMessage("An unexpected error occurred.");
-    }
-
-    setIsLoading(false);
+  const handleDeposit = () => {
+    // Redirect to the Return component with amount and currency
+    navigate(`/checkout?amount=${amount}&currency=${currency}`);
   };
-
-  const paymentElementOptions: StripePaymentElementOptions = {
-    layout: "tabs"
-  }
-
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
-
-      <PaymentElement id="payment-element" options={paymentElementOptions} />
-      <button disabled={isLoading || !stripe || !elements} id="submit">
-        <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}
-        </span>
-      </button>
-      {/* Show any error or success messages */}
-      {message && <div id="payment-message">{message}</div>}
-    </form>
+    <div className="flex flex-col items-center mt-20">
+      <h2 className="text-4xl font-bold text-gray-800 font-roboto">Add Money</h2>
+      <div className="bg-white border rounded-lg shadow-lg p-8 mt-6 w-[40vw]">
+        <form onSubmit={handleDeposit} className="flex flex-col gap-6">
+          <div className="flex flex-col">
+            <label htmlFor="amount" className="text-gray-700 font-medium">Amount</label>
+            <input
+              type="number"
+              id="amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Enter amount"
+              className="border border-gray-300 rounded-md shadow-sm p-3 w-full"
+              required
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="currency" className="text-gray-700 font-medium">Currency</label>
+            <select
+              id="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="border border-gray-300 rounded-md shadow-sm p-3 w-full"
+              required
+            >
+              <option value="">Select currency</option>
+              <option value="inr">INR</option>
+              <option value="usd">USD</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="bg-akash-red hover:bg-akash-red-dark text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
+          >
+            Deposit Now
+          </button>
+        </form>
+      </div>
+    </div>
   );
-}
+  
+  
+};
+
+export default CheckoutForm;

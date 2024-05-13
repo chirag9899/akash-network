@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Web3Auth } from "@web3auth/modal";
 import { WEB3AUTH_NETWORK } from "@web3auth/base";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
@@ -8,32 +8,68 @@ import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
 const Web3AuthContext = createContext();
 
 const Web3AuthProvider = ({ children, chainConfig }) => {
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  const privateKeyProvider = new CommonPrivateKeyProvider({
-    config: { chainConfig }
-  });
+  const [web3Auth, setWeb3AuthInstance] = useState(null);
+  const [privateKeyProvider, setPrivateKeyProvider] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [provider, setProvider] = useState(null);
 
-  const web3auth = new Web3Auth({
-    clientId: chainConfig.clientId,
-    web3AuthNetwork: chainConfig.web3AuthNetwork,
-    privateKeyProvider: privateKeyProvider,
-  });
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
-    const init = async () => {
+    const initWeb3Auth = async () => {
       try {
-        await web3auth.initModal();
-        setIsInitialized(true);
+        if (isInitializedRef.current) return; // Already initialized, skip.
+
+        const provider = new CommonPrivateKeyProvider({
+          config: { chainConfig }
+        });
+        setPrivateKeyProvider(provider);
+
+        const web3authInstance = new Web3Auth({
+          clientId: chainConfig.clientId,
+          web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+          privateKeyProvider: provider,
+        });
+        await web3authInstance.initModal();
+        console.log("Wallet initialized successfully");
+        if (web3authInstance.connected) {
+          setLoggedIn(true);
+        }
+        setWeb3AuthInstance(web3authInstance);
+        isInitializedRef.current = true; // Mark as initialized
       } catch (error) {
-        console.error(error);
+        console.error("Error initializing wallet:", error);
+        throw new Error(error.message || error);
       }
     };
-    init();
-  }, []);
+
+    initWeb3Auth();
+  }, [chainConfig]);
+
+  const login = async () => {
+    const web3authProvider = await web3Auth.connect();
+    setProvider(web3authProvider);
+    if (web3Auth.connected) {
+      setLoggedIn(true);
+    }
+  };
+
+  const logout = async () => {
+    await web3Auth.logout();
+    setProvider(null);
+    setLoggedIn(false);
+  };
 
   const getPrivateKeyAndWallet = async () => {
     try {
+      if (!web3Auth || !privateKeyProvider) {
+        throw new Error("Web3Auth or private key provider not initialized");
+      }
+
+      if (!privateKeyProvider) {
+        throw new Error("No private key provider");
+      }
       const privateKey = Buffer.from(await privateKeyProvider.request({ method: "private_key" }), "hex");
       const wallet = await DirectSecp256k1Wallet.fromKey(privateKey, chainConfig.ticker);
       return { privateKey, wallet };
@@ -48,9 +84,12 @@ const Web3AuthProvider = ({ children, chainConfig }) => {
   };
 
   const getBalance = async () => {
-    if (!isInitialized) return;
-
     try {
+      
+      if (!web3Auth || !privateKeyProvider) {
+        throw new Error("Web3Auth or private key provider not initialized");
+      }
+
       const { privateKey, wallet } = await getPrivateKeyAndWallet();
       const accounts = await wallet.getAccounts({ network: chainConfig.ticker }, { prefix: chainConfig.ticker });
       const address = accounts.length > 0 ? accounts[0].address : null;
@@ -61,14 +100,16 @@ const Web3AuthProvider = ({ children, chainConfig }) => {
 
       const client = await connectStargateClient();
       const balance = await client.getAllBalances(address);
-      return balance;
+      return {address,balance};
     } catch (error) {
       throw new Error(error.message || error);
     }
   };
 
   const sendTransaction = async (destination, denom, amount, gas) => {
-    if (!isInitialized) return;
+    if (!web3Auth || !privateKeyProvider) {
+      throw new Error("Web3Auth or private key provider not initialized");
+    }
 
     try {
       const rpc = chainConfig.rpcTarget;
@@ -86,17 +127,20 @@ const Web3AuthProvider = ({ children, chainConfig }) => {
   };
 
   const getUserInfo = async () => {
-    if (!isInitialized) return;
+    if (!web3Auth || !privateKeyProvider) {
+      throw new Error("Web3Auth or private key provider not initialized");
+    }
 
     try {
-      return await web3auth.getUserInfo();
+      return await web3Auth.getUserInfo();
     } catch (error) {
-      console.error(error);
+      console.error("here",error);
+      throw new Error(error.message || error);
     }
   };
 
   return (
-    <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo }}>
+    <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet,loggedIn, setLoggedIn, login, logout }}>
       {children}
     </Web3AuthContext.Provider>
   );

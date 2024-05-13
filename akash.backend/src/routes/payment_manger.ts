@@ -6,7 +6,7 @@ const paymentManager = express.Router();
 
 const Domain = 'http://localhost:5173';
 
-console.log("found",process.env.STRIPE_SECRET_KEY)
+console.log("found", process.env.STRIPE_SECRET_KEY)
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2024-04-10',
@@ -17,101 +17,77 @@ const getAddress = async (email: string) => {
 };
 
 paymentManager.post('/create-checkout-session', async (req, res) => {
-    const session = await stripe.checkout.sessions.create({
-        ui_mode: 'embedded',
-        line_items: [
-            {
-                // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                // price: 'price_1PETZwSF6nbQBJViesLMIlbf',
-                price_data: {
-                    unit_amount: 5000,
-                    currency: 'inr',
-                    product_data: {
-                        images: ['https://cdn.sanity.io/images/tlr8oxjg/production/c735189812ef6b7f3ba148cfbf91b9998aa851e1-1290x722.png?w=3840&q=80&fit=clip&auto=format'],
-                        name: 'Gpu',
+    try {
+        const { amount, currency } = req.body; // Receive amount from frontend
+
+
+        const session = await stripe.checkout.sessions.create({
+            ui_mode: 'embedded',
+            line_items: [
+                {
+                    price_data: {
+                        unit_amount: amount * 100, // Convert amount to cents
+                        currency, // Adjust currency if needed
+                        product_data: {
+                            images: ['https://cdn.sanity.io/images/tlr8oxjg/production/c735189812ef6b7f3ba148cfbf91b9998aa851e1-1290x722.png?w=3840&q=80&fit=clip&auto=format'],
+                            name: 'Deposit Money',
+                        },
                     },
+                    quantity: 1,
                 },
-                quantity: 1,
+            ],
+            billing_address_collection: "required",
+            mode: 'payment',
+            // success_url: `${Domain}/return?success=true`,
+            // cancel_url: `${Domain}/return?canceled=true`,
+            return_url: `${Domain}/return?session_id={CHECKOUT_SESSION_ID}`
+        });
 
-            },
-        ],
-        billing_address_collection: "required",
-        mode: 'payment',
-        return_url: `${Domain}/return?session_id={CHECKOUT_SESSION_ID}`,
-    });
 
 
-    res.send({ clientSecret: session.client_secret });
+        res.send({ clientSecret: session.client_secret });
+    } catch (error) {
+        console.log(error)
+        throw new Error("create-checkout-session Error")
+    }
 });
 
 paymentManager.get('/session-status', async (req, res) => {
+    try {
+        const { session_id, recipientAddress } = req.query;
+        const session = await stripe.checkout.sessions.retrieve(session_id as string);
+        const amount = (session.amount_total / 100).toString()
 
+        console.log("session", session)
+        res.send({
+            status: session.payment_status,
+            customer_details: session.customer_details,
+            amount: session.amount_total / 100,
+        });
 
-    const session = await stripe.checkout.sessions.retrieve(req.query.session_id as string);
-    const recipientAddress = req.query.address as string
-    const amount = req.query.amount as string
-
-    // if (session.status === 'complete') {
-    //     sendAKT( recipientAddress, amount)  
-
-    // }
-
-    res.send({
-        status: session.status,
-        customer_email: session.customer_details.email
-    });
-
+        if (session.payment_status == "paid") {
+            try {
+                sendAKT(recipientAddress.toString(), amount)
+                // const aktInUSD = 0.18; 
+                // const aktInINR = 0.0022;
+                // const currencyToAktRate = currency === "usd" ? aktInUSD : aktInINR;
+                // const amountInAkt = Number(amount) * currencyToAktRate;
+                // sendAKT(recipientAddress.toString(), amountInAkt.toString());
+            } catch (error) {
+                console.log(error)
+                throw new Error("Payment not sent")
+            }
+        }
+        else {
+            throw new Error("Payment not paid")
+        }
+    } catch (error) {
+        console.log(error)
+        throw new Error("session-status Failed")
+    }
 
 });
 
 
-
-// paymentManager.post('/payment', async (req, res) => {
-//     try {
-//         const { amount, token, description, currency , email, name , address, paymentMethodId } = req.body;
-
-//         if (!amount || !token || !email || !name || !paymentMethodId || !address ||!currency ||!description) {
-//             return res.status(400).send("Missing required payment parameters.");
-//         }
-
-//         // const address = await getAddress(email);
-
-//         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-//             apiVersion: '2024-04-10',
-//         });
-
-//         // Creating a customer in Stripe if needed.
-//         const customer = await stripe.customers.create({
-//             email: email,
-//             source: token.id,
-//             name: name,
-//             address:  address   // Assuming 'address' is just a line1 for simplicity.
-//         });
-
-//         const paymentIntent = await stripe.paymentIntents.create({
-//             amount,
-//             currency: currency ,
-//             description: description || "",
-//             payment_method: paymentMethodId,
-//             receipt_email: email,
-//             confirm: true,
-//             setup_future_usage: 'on_session', // To reuse the payment method later
-//             customer: customer.id,
-//             metadata: { customerName: name }
-//         });
-
-//         res.json({ clientSecret: paymentIntent.client_secret });
-
-//     } catch (err) {
-//         console.error('Error processing payment:', err);
-//         let message = 'An error occurred while processing your payment.';
-
-//         if (err.type === 'StripeCardError') {
-//             message = err.message;
-//         }
-
-//         res.status(500).send(message);
-//     }
-// });
 
 export default paymentManager;

@@ -4,7 +4,7 @@ import { useWeb3Auth } from "./provider/authProvider.jsx";
 
 
 const Home = () => {
-  const { getBalance, sendTransaction, getUserInfo } = useWeb3Auth();
+  const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn,loggedIn, login, logout } = useWeb3Auth();
 
   // Use the provided functions as needed
   const handleGetBalance = async () => {
@@ -26,13 +26,47 @@ const Home = () => {
     console.log("User Info:", userInfo);
   };
 
+  const unloggedInView = (
+    <button onClick={login} className="card">
+      Login
+    </button>
+  );
+
+  const handleGetKey = async () => {
+    const { privateKey, wallet } = await getPrivateKeyAndWallet();
+    console.log(wallet)
+  };
+
+  const loggedInView = (
+    <>
+      <div>
+        {/* Your component JSX */}
+        <button onClick={handleGetBalance}>Get Balance</button>
+        <button onClick={handleSendTransaction}>Send Transaction</button>
+        <button onClick={handleGetUserInfo}>Get User Info</button>
+        <button onClick={handleGetKey}>Get private key</button>
+        <button onClick={async () => await logout() }>logout</button>
+      </div>
+    </>
+  );
+
+
   return (
-    <div>
-      {/* Your component JSX */}
-      <button onClick={handleGetBalance}>Get Balance</button>
-      <button onClick={handleSendTransaction}>Send Transaction</button>
-      <button onClick={handleGetUserInfo}>Get User Info</button>
+    <div className="container">
+      <h1 className="title">
+        <a target="_blank" href="https://web3auth.io/docs/sdk/pnp/web/modal" rel="noreferrer">
+          Web3Auth{" "}
+        </a>
+        & ReactJS (Webpack) Quick Start
+      </h1>
+
+      <div className="grid">{loggedIn ? loggedInView : unloggedInView}</div>
+      <div id="console" style={{ whiteSpace: "pre-line" }}>
+        <p style={{ whiteSpace: "pre-line" }}></p>
+      </div>
+
     </div>
+
   );
 };
 

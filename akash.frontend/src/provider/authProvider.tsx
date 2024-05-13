@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Web3Auth } from "@web3auth/modal";
-import { WEB3AUTH_NETWORK, IProvider, WALLET_ADAPTERS } from "@web3auth/base";
+import { WEB3AUTH_NETWORK, IProvider, WALLET_ADAPTERS, ADAPTER_EVENTS, CONNECTED_EVENT_DATA, ADAPTER_STATUS_TYPE } from "@web3auth/base";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
-import { ChainConfig } from "../chainConfig";
+import { ChainConfig } from "../helper/chainConfig";
 import { WalletServicesPlugin } from "@web3auth/wallet-services-plugin";
 
 
 const Web3AuthContext = createContext({});
+
 
 const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode, chainConfig: ChainConfig }) => {
 
@@ -16,9 +17,11 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     const [privateKeyProvider, setPrivateKeyProvider] = useState<IProvider>();
     const [loggedIn, setLoggedIn] = useState(false);
     const [provider, setProvider] = useState<IProvider>();
+    const [ status ,setStatus] = useState<boolean>(false);
     // const [walletServicePlugin, setWalletServicePlugin] = useState<WalletServicesPlugin | null>();
 
     const isInitializedRef = useRef(false);
+
 
     useEffect(() => {
         const initWeb3Auth = async () => {
@@ -118,6 +121,44 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
         initWeb3Auth();
     }, [chainConfig]);
 
+
+    useEffect(() => {
+
+        if (web3Auth){
+            console.log(web3Auth)
+            setStatus(web3Auth.connected)
+        }
+
+        const subscribeAuthEvents = () => {
+            if (!web3Auth) return;
+
+            web3Auth.on(ADAPTER_EVENTS.CONNECTED, (data: CONNECTED_EVENT_DATA) => {
+                console.log("connected to wallet", data);
+            });
+
+            web3Auth.on(ADAPTER_EVENTS.CONNECTING, () => {
+                console.log("connecting");
+            });
+
+            web3Auth.on(ADAPTER_EVENTS.DISCONNECTED, () => {
+                console.log("disconnected");
+            });
+
+            web3Auth.on(ADAPTER_EVENTS.ERRORED, (error) => {
+                console.log("error", error);
+            });
+        };
+
+        subscribeAuthEvents();
+
+        return () => {
+            if (web3Auth) {
+                // Unsubscribe event listeners
+                web3Auth.removeAllListeners();
+            }
+        };
+    }, [web3Auth, web3Auth?.connected]);
+
     const login = async () => {
         const web3authProvider = web3Auth && await web3Auth.connect();
         web3authProvider && setProvider(web3authProvider);
@@ -126,10 +167,8 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
         }
     };
 
-    // const showUi = async () => {
-    //     if (walletServicePlugin) {
-    //         await  walletServicePlugin.showWalletUi();
-    //     }
+    // const status = () => {
+    //     return web3Auth && web3Auth.status;
     // }
 
     const logout = async () => {
@@ -208,13 +247,27 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
         }
     };
 
+
     const getUserInfo = async () => {
         if (!web3Auth || !privateKeyProvider) {
             throw new Error("Web3Auth or private key provider not initialized");
         }
 
         try {
-            return await web3Auth.getUserInfo();
+            const data = await web3Auth.getUserInfo();
+            const { privateKey, wallet } = await getPrivateKeyAndWallet();
+            // const accounts = await wallet.getAccounts({ network: chainConfig.ticker }, { prefix: chainConfig.ticker });
+            const accounts = await wallet.getAccounts();
+            const address = accounts.length > 0 ? accounts[0].address : null;
+
+            if (!address) {
+                throw new Error(`Failed to generate ${chainConfig.displayName} address.`);
+            }
+
+            const client = await connectStargateClient();
+            const balance = await client.getAllBalances(address);
+            return { data , address, balance };
+            return 
         } catch (error: any) {
             console.error("here", error);
             throw new Error(error.message || error);
@@ -222,7 +275,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     };
 
     return (
-        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout }}>
+        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout, status, web3Auth }}>
             {children}
         </Web3AuthContext.Provider>
     );

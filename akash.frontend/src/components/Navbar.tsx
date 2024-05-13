@@ -1,47 +1,43 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useActiveWalletConnectionStatus, ThirdwebProvider, ConnectButton, lightTheme, useDisconnect, useActiveWallet } from 'thirdweb/react';
 import { createThirdwebClient } from 'thirdweb';
 import { Wallet, inAppWallet } from 'thirdweb/wallets';
 import Dropdown from '../components/DropDown';
+import { useWeb3Auth } from '../provider/authProvider';
 
 
 const Navbar: React.FC = () => {
-  const connectionStatus = useActiveWalletConnectionStatus();
-  const client = createThirdwebClient({
-    clientId: import.meta.env.VITE_APP_THIRDWEB_CLIENT_ID,
-  });
-  
-  // const { logout, isLoading } = useLogout();
-  const { disconnect } = useDisconnect();
-  const wallet: Wallet | undefined = useActiveWallet();
+  // const connectionStatus = useActiveWalletConnectionStatus();
+  const { status, web3Auth, getUserInfo, getBalance }: any = useWeb3Auth();
+  const [userInfo, setUserInfo] = useState<any>(null);
 
 
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const info = await getUserInfo();
+        console.log(info)
+        setUserInfo(info);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  const wallets = [
-    inAppWallet({
-      auth: {
-        options: [
-          "email",
-          "google",
-          "apple",
-          "facebook",
-          "phone",
-        ],
-      },
-    }),
-  ];
+    fetchUserInfo();
+  }, [getUserInfo]);
 
+  const navigate = useNavigate()
   return (
     <nav className="bg-transparent border-b border-gray-200 py-4">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-        <div className="text-lg font-semibold text-gray-900">My App</div>
+        <div className="text-lg font-semibold text-gray-900" onClick={() => navigate("/")}>Akash</div>
         <div className="flex items-center">
           <Link to="/home" className="text-gray-800 hover:text-gray-900 mx-2 py-2 rounded-md text-sm font-medium">Home</Link>
           <Link to="/login" className="text-gray-800 hover:text-gray-900 mx-2 py-2 rounded-md text-sm font-medium">Login</Link>
           <Link to="/DemoCards" className="text-gray-800 hover:text-gray-900 mx-2 py-2 rounded-md text-sm font-medium">Demo Cards</Link>
-          {connectionStatus === "connected" && (
-          <Dropdown />
+          {status && (
+          <Dropdown userInfo={userInfo} />
           )}
         </div>
       </div>

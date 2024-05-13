@@ -2,12 +2,15 @@
 
 
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useWeb3Auth } from "../provider/authProvider.js";
 
 
 const Login = () => {
-  const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn, loggedIn, login, logout }: any = useWeb3Auth();
+  const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn, loggedIn, login, logout, status, web3Auth }: any = useWeb3Auth();
+
+  // const { status, web3Auth }: any = useWeb3Auth();
+  
 
   // Use the provided functions as needed
   const handleGetBalance = async () => {
