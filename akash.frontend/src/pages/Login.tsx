@@ -1,83 +1,159 @@
-import React, { useEffect } from 'react';
-import { createThirdwebClient } from 'thirdweb';
-import {
-  ThirdwebProvider,
-  ConnectButton,
-  lightTheme,
-  ConnectEmbed,
-} from "thirdweb/react";
-import { inAppWallet, } from "thirdweb/wallets";
-import { useActiveWalletConnectionStatus } from 'thirdweb/react';
 
 
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 
 
-const client = createThirdwebClient({
-  clientId: import.meta.env.VITE_APP_THIRDWEB_CLIENT_ID,
-});
+import React from "react";
+import { useWeb3Auth } from "../provider/authProvider.js";
 
-const wallets = [
-  inAppWallet({
-    auth: {
-      options: [
-        "email",
-        "google",
-        "apple",
-        "facebook",
-        "phone",
-      ],
-    },
-  }),
-];
 
-const Login: React.FC = () => {
+const Login = () => {
+  const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn, loggedIn, login, logout , showUi}: any = useWeb3Auth();
 
-  const navigate = useNavigate();
-  const connectionStatus = useActiveWalletConnectionStatus();
-  console.log(connectionStatus);
+  // Use the provided functions as needed
+  const handleGetBalance = async () => {
+    const balance = await getBalance();
+    console.log("Balance:", balance);
+  };
 
-  
-  useEffect(() => {
-    if (connectionStatus == "connected") {
-      console.log("connected to home");
-      navigate("/home");
-    }
-  }, [connectionStatus])
+  const handleSendTransaction = async () => {
+    const destination = "exampleDestinationAddress";
+    const denom = "exampleDenom";
+    const amount = "100";
+    const gas = "200000";
+    const result = await sendTransaction(destination, denom, amount, gas);
+    console.log("Transaction Result:", result);
+  };
+
+  const handleGetUserInfo = async () => {
+    const userInfo = await getUserInfo();
+    console.log("User Info:", userInfo);
+  };
+
+  const unloggedInView = (
+    <>
+    <button onClick={login} className="card">
+      Login
+    </button>
+      <div>
+      <button onClick={showUi} className="card">
+        Show Wallet UI
+      </button>
+    </div>
+    </>
+  );
+
+  const handleGetKey = async () => {
+    const { privateKey, wallet } = await getPrivateKeyAndWallet();
+    console.log(wallet)
+  };
+
+  const loggedInView = (
+    <>
+      <div>
+        {/* Your component JSX */}
+        <button onClick={handleGetBalance}>Get Balance</button>
+        <button onClick={handleSendTransaction}>Send Transaction</button>
+        <button onClick={handleGetUserInfo}>Get User Info</button>
+        <button onClick={handleGetKey}>Get private key</button>
+        <button onClick={logout}>logout</button>
+      
+      </div>
+    </>
+  );
+
 
   return (
-    <div className="flex items-center justify-center min-h-screen " >
-      <ThirdwebProvider>
-        <ConnectEmbed
-          client={client}
-          wallets={wallets}
-          theme={lightTheme({
-            colors: { accentButtonBg: "#fd3f4a" },
-          })}
-          onConnect={() => {
+    <div className="container">
+      <h1 className="title">
+        <a target="_blank" href="https://web3auth.io/docs/sdk/pnp/web/modal" rel="noreferrer">
+          Web3Auth{" "}
+        </a>
+        & ReactJS (Webpack) Quick Start
+      </h1>
 
-          }}
+      <div className="grid">{loggedIn ? loggedInView : unloggedInView}</div>
+      <div id="console" style={{ whiteSpace: "pre-line" }}>
+        <p style={{ whiteSpace: "pre-line" }}></p>
+      </div>
 
-
-
-        // connectModal={{
-        //   size: "compact",
-        //   title: "Sign in ",
-        //   titleIcon:
-        //     "https://i.postimg.cc/3RDLnLmG/akash-logo-Czd-Yko-VW-2sjg-Hi-3.png",
-        //   showThirdwebBranding: false,
-        // }}
-        />
-        {/* <ConnectEmbed
-        theme="dark"
-        onConnect={() => {
-          console.log("connected");
-          // you can also redirect to a different page using Next.js router
-        }}
-      /> */}
-      </ThirdwebProvider>
     </div>
+
   );
 };
 
-export default Login;
+export default Login
+
+
+
+// import React from "react";
+// import { useWeb3Auth } from "../provider/authProvider.js";
+
+
+// const Login = () => {
+//   const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn, loggedIn, login, logout }: any = useWeb3Auth();
+
+//   // Use the provided functions as needed
+//   const handleGetBalance = async () => {
+//     const balance = await getBalance();
+//     console.log("Balance:", balance);
+//   };
+
+//   const handleSendTransaction = async () => {
+//     const destination = "exampleDestinationAddress";
+//     const denom = "exampleDenom";
+//     const amount = "100";
+//     const gas = "200000";
+//     const result = await sendTransaction(destination, denom, amount, gas);
+//     console.log("Transaction Result:", result);
+//   };
+
+//   const handleGetUserInfo = async () => {
+//     const userInfo = await getUserInfo();
+//     console.log("User Info:", userInfo);
+//   };
+
+//   const unloggedInView = (
+//     <button onClick={login} className="card">
+//       Login
+//     </button>
+//   );
+
+//   const handleGetKey = async () => {
+//     const { privateKey, wallet } = await getPrivateKeyAndWallet();
+//     console.log(wallet)
+//   };
+
+//   const loggedInView = (
+//     <>
+//       <div>
+//         {/* Your component JSX */}
+//         <button onClick={handleGetBalance}>Get Balance</button>
+//         <button onClick={handleSendTransaction}>Send Transaction</button>
+//         <button onClick={handleGetUserInfo}>Get User Info</button>
+//         <button onClick={handleGetKey}>Get private key</button>
+//         <button onClick={logout}>logout</button>
+//       </div>
+//     </>
+//   );
+
+
+//   return (
+//     <div className="container">
+//       <h1 className="title">
+//         <a target="_blank" href="https://web3auth.io/docs/sdk/pnp/web/modal" rel="noreferrer">
+//           Web3Auth{" "}
+//         </a>
+//         & ReactJS (Webpack) Quick Start
+//       </h1>
+
+//       <div className="grid">{loggedIn ? loggedInView : unloggedInView}</div>
+//       <div id="console" style={{ whiteSpace: "pre-line" }}>
+//         <p style={{ whiteSpace: "pre-line" }}></p>
+//       </div>
+
+//     </div>
+
+//   );
+// };
+
+// export default Login

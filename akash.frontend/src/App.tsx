@@ -4,9 +4,9 @@ import Login from './pages/Login';
 import DemoCard from './pages/DemoCard';
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
-import { CheckoutForm, Return } from './components/Checkout';
-import { CanvasBackgroundProvider } from './components/CanvasBackground';
 import { useActiveWalletConnectionStatus } from 'thirdweb/react';
+import { chainConfig } from './chainConfig';
+import { Web3AuthProvider } from './provider/authProvider';
 
 
 const App: React.FC = () => {
@@ -16,6 +16,7 @@ const App: React.FC = () => {
   return (
     // <CanvasBackgroundProvider>
     //     </CanvasBackgroundProvider>
+    <Web3AuthProvider chainConfig={chainConfig}>
     <Router>
       <Navbar />
       <Routes>
@@ -31,6 +32,7 @@ const App: React.FC = () => {
         <Route path="/return" element={<Return />} /> */}
       </Routes>
     </Router>
+    </Web3AuthProvider>
   );
 };
 
