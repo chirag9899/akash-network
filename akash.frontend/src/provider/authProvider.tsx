@@ -16,7 +16,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     const [privateKeyProvider, setPrivateKeyProvider] = useState<IProvider>();
     const [loggedIn, setLoggedIn] = useState(false);
     const [provider, setProvider] = useState<IProvider>();
-    const [walletServicePlugin, setWalletServicePlugin] = useState<WalletServicesPlugin | null>();
+    // const [walletServicePlugin, setWalletServicePlugin] = useState<WalletServicesPlugin | null>();
 
     const isInitializedRef = useRef(false);
 
@@ -37,70 +37,71 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
                 });
 
 
-                const walletServicesPlugin = new WalletServicesPlugin({
-                    wsEmbedOpts: {},
-                    walletInitOptions: { whiteLabel: { showWidgetButton: true } },
-                  });
-                web3authInstance.addPlugin(walletServicesPlugin);
+                await web3authInstance.initModal();
+                // const walletServicesPlugin = new WalletServicesPlugin({
+                //     wsEmbedOpts: {},
+                //     walletInitOptions: { whiteLabel: { showWidgetButton: true } },
+                //   });
+                // web3authInstance.addPlugin(walletServicesPlugin);
                 
-                await web3authInstance.initModal({
-                    modalConfig: {
-                      [WALLET_ADAPTERS.OPENLOGIN]: {
-                        label: "openlogin",
-                        loginMethods: {
-                          // Disable facebook and reddit
-                          apple: {
-                            name: "facebook",
-                            showOnModal: false,
-                          },
-                          reddit: {
-                            name: "reddit",
-                            showOnModal: false,
-                          },
-                          line: {
-                            name: "line",
-                            showOnModal: false,
-                          },
-                          github: {
-                            name: "github",
-                            showOnModal: false,
-                          },
-                          wechat: {
-                            name: "wechat",
-                            showOnModal: false,
-                          },
-                          twitter: {
-                            name: "twitter",
-                            showOnModal: false,
-                          },
-                          kakao: {
-                            name: "kakao",
-                            showOnModal: false,
-                          },
-                          linkedin: {
-                            name: "linkedin",
-                            showOnModal: false,
-                          },
-                          weibo: {
-                            name: "weibo",
-                            showOnModal: false,
-                          },
-                          // Disable email_passwordless and sms_passwordless
-                          email_passwordless: {
-                            name: "email_passwordless",
-                            showOnModal: false,
-                          },
-                          sms_passwordless: {
-                            name: "sms_passwordless",
-                            showOnModal: false,
-                          },
-                        },
-                      },
-                    },
-                  });
+                // await web3authInstance.initModal({
+                //     modalConfig: {
+                //       [WALLET_ADAPTERS.OPENLOGIN]: {
+                //         label: "openlogin",
+                //         loginMethods: {
+                //           // Disable facebook and reddit
+                //           apple: {
+                //             name: "facebook",
+                //             showOnModal: false,
+                //           },
+                //           reddit: {
+                //             name: "reddit",
+                //             showOnModal: false,
+                //           },
+                //           line: {
+                //             name: "line",
+                //             showOnModal: false,
+                //           },
+                //           github: {
+                //             name: "github",
+                //             showOnModal: false,
+                //           },
+                //           wechat: {
+                //             name: "wechat",
+                //             showOnModal: false,
+                //           },
+                //           twitter: {
+                //             name: "twitter",
+                //             showOnModal: false,
+                //           },
+                //           kakao: {
+                //             name: "kakao",
+                //             showOnModal: false,
+                //           },
+                //           linkedin: {
+                //             name: "linkedin",
+                //             showOnModal: false,
+                //           },
+                //           weibo: {
+                //             name: "weibo",
+                //             showOnModal: false,
+                //           },
+                //           // Disable email_passwordless and sms_passwordless
+                //           email_passwordless: {
+                //             name: "email_passwordless",
+                //             showOnModal: false,
+                //           },
+                //           sms_passwordless: {
+                //             name: "sms_passwordless",
+                //             showOnModal: false,
+                //           },
+                //         },
+                //       },
+                //     },
+                //   });
            
 
-                setWalletServicePlugin(walletServicesPlugin);
+                // setWalletServicePlugin(walletServicesPlugin);
                 
                 console.log("Wallet initialized successfully");
                 if (web3authInstance.connected) {
@@ -125,11 +126,11 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
         }
     };
 
-    const showUi = async () => {
-        if (walletServicePlugin) {
-            await  walletServicePlugin.showWalletUi();
-        }
-    }
+    // const showUi = async () => {
+    //     if (walletServicePlugin) {
+    //         await  walletServicePlugin.showWalletUi();
+    //     }
+    // }
 
     const logout = async () => {
         if (web3Auth) {
@@ -221,7 +222,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     };
 
     return (
-        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout , showUi}}>
+        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout }}>
             {children}
         </Web3AuthContext.Provider>
     );

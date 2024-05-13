@@ -7,7 +7,7 @@ import { useWeb3Auth } from "../provider/authProvider.js";
 
 
 const Login = () => {
-  const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn, loggedIn, login, logout , showUi}: any = useWeb3Auth();
+  const { getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, setLoggedIn, loggedIn, login, logout }: any = useWeb3Auth();
 
   // Use the provided functions as needed
   const handleGetBalance = async () => {
@@ -35,9 +35,7 @@ const Login = () => {
       Login
     </button>
       <div>
-      <button onClick={showUi} className="card">
-        Show Wallet UI
-      </button>
+
     </div>
     </>
   );
