@@ -73,14 +73,6 @@ app.get('/session-status', async (req, res) => {
     });
 });
 
-app.post('/deploy',async ( ) => {
-    try {
-        
-    } catch (error) {
-        throw new Error("deploy Error")
-    }
-})
-
 app.listen(process.env.PORT, () => {
     console.log(`Server is running at http://localhost:${process.env.PORT}`);
 });

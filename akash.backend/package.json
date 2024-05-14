@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
+    "deploy": "tsc && node dist/utils/deploy.js",
     "compile": "tsc && node dist/index.js",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,8 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@akashnetwork/akash-api": "^1.3.0",
     "@akashnetwork/akashjs": "0.9.0",
+    "@akashnetwork/akash-api": "^1.3.0",
     "@cosmjs/amino": "^0.32.3",
     "@cosmjs/crypto": "^0.32.3",
     "@cosmjs/proto-signing": "^0.32.3",

@@ -62,7 +62,7 @@ const Dropdown = ({userInfo}: {userInfo: any}) => {
                 {userInfo?.data.email}
               </div>
               {
-                userInfo && 
+                userInfo && userInfo.balance.length > 0 &&
               <div className="text-sm text-gray-500 py-2">
                 $ {((userInfo.balance[0].amount / 10 ** 6 )* 5.47).toFixed(2)} 
               </div>

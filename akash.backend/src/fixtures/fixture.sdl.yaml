@@ -27,6 +27,7 @@ profiles:
         anyOf:
           - akash1pa0ckdmr35ck2eem7a8ejrc36dllka3h9a46hp
           - akash1z47haahlta2d0xlh6402ukyuf43m7fnlfc8hax
+          - akash19hwd9h8a4nuejtrjaedj200skxkm5xmps87knf
       pricing:
         tetris:
           denom: uakt

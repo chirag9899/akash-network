@@ -61,11 +61,3 @@ export async function sendAKT( recipientAddress: string, amount: string) {
   return result;
 }
 
-
-// Example usage
-// const recipientAddress = "akash1pa0ckdmr35ck2eem7a8ejrc36dllka3h9a46hp"; // Recipient's address
-// const amount = "1000000"; // Amount of AKT in the smallest unit (uakt)
-
-// sendAKT( recipientAddress, amount)
-//   .then((result) => console.log("Transaction successful:", result))
-//   .catch((error) => console.error("Error sending AKT:", error));
