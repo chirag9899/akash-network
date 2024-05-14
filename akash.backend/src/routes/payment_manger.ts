@@ -56,31 +56,33 @@ paymentManager.get('/session-status', async (req, res) => {
     try {
         const { session_id, recipientAddress } = req.query;
         const session = await stripe.checkout.sessions.retrieve(session_id as string);
-        const amount = (session.amount_total / 100).toString()
-
-        console.log("session", session)
-        res.send({
-            status: session.payment_status,
-            customer_details: session.customer_details,
-            amount: session.amount_total / 100,
-        });
+        const amount = (session.amount_total / 100)
+        const akt_amount = session.currency === "usd" ? (amount * 0.18) : (amount * 0.0022)
+        let failed = false;
+    
 
         if (session.payment_status == "paid") {
             try {
-                sendAKT(recipientAddress.toString(), amount)
-                // const aktInUSD = 0.18; 
-                // const aktInINR = 0.0022;
-                // const currencyToAktRate = currency === "usd" ? aktInUSD : aktInINR;
-                // const amountInAkt = Number(amount) * currencyToAktRate;
-                // sendAKT(recipientAddress.toString(), amountInAkt.toString());
+                // console.log((akt_amount * (10 ** 6)).toString())
+                const data = await sendAKT(recipientAddress.toString(), (akt_amount * (10 ** 6)).toString())
+
             } catch (error) {
                 console.log(error)
+                failed = true
                 throw new Error("Payment not sent")
             }
         }
         else {
             throw new Error("Payment not paid")
         }
+
+        res.send({
+            status: session.payment_status,
+            customer_details: session.customer_details,
+            // amount: (amount / (10 ** 6) + "Akt").toString(),
+            failed: failed
+
+        });
     } catch (error) {
         console.log(error)
         throw new Error("session-status Failed")

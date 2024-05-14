@@ -4,6 +4,7 @@
 
 import React, { useEffect } from "react";
 import { useWeb3Auth } from "../provider/authProvider.js";
+import logo from "../assets/akash.png";
 
 
 const Login = () => {
@@ -64,20 +65,20 @@ const Login = () => {
 
 
   return (
-    <div className="container">
-      <h1 className="title">
-        <a target="_blank" href="https://web3auth.io/docs/sdk/pnp/web/modal" rel="noreferrer">
-          Web3Auth{" "}
-        </a>
-        & ReactJS (Webpack) Quick Start
-      </h1>
-
-      <div className="grid">{loggedIn ? loggedInView : unloggedInView}</div>
-      <div id="console" style={{ whiteSpace: "pre-line" }}>
-        <p style={{ whiteSpace: "pre-line" }}></p>
+    <>
+      <div className="flex items-center justify-between min-h-screen mx-auto px-72">
+        <div className='flex-col px-10'>
+          <img src={logo} alt="logo" className='h-16' />
+          <div className='py-5 text-3xl text-bold font-bold'>
+            Welcome to akash Network
+          </div>
+        </div>
+        <div>
+          <div className=" bg-akash-red flex w-full p-4 rounded-lg spaxe-x-2 space-y-2" >{unloggedInView} </div>
+        </div>
       </div>
 
-    </div>
+    </>
 
   );
 };

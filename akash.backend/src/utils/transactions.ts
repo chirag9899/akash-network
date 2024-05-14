@@ -11,6 +11,7 @@ const privateKey = "c3d4c00caea2bf3842e6b5638425c1f177c1b22407b0e7e0a1783666cca7
 
 // Function to send AKT tokens
 export async function sendAKT( recipientAddress: string, amount: string) {
+
   // Create a wallet with the private key
   // const privateKeyBytes = new Uint8Array(Buffer.from(privateKey, 'base64')); // Convert from base64 to Uint8Array
 
@@ -24,15 +25,14 @@ export async function sendAKT( recipientAddress: string, amount: string) {
   // get first account
   const [account] = await wallet.getAccounts();
 
-  console.log(account.address)
-
+  
   // Create the message for sending AKT tokens
   const msgSend = {
     typeUrl: "/cosmos.bank.v1beta1.MsgSend",
     value: MsgSend.fromPartial({
       fromAddress: account.address,
       toAddress: recipientAddress,
-      amount: [coin(amount, "uakt")], // uakt is the smallest unit of AKT
+      amount: [coin(Number(amount).toFixed(0), "uakt")], // uakt is the smallest unit of AKT
     }),
   };
 
@@ -46,10 +46,13 @@ export async function sendAKT( recipientAddress: string, amount: string) {
       ],
       gas: "800000",
   };
-  // Broadcast the transaction
+  // Broadcast the transaction``
   let result: DeliverTxResponse;
   try {
-    result = await client.signAndBroadcast(account.address, [msgSend], fee, "Send AKT via CosmJS");
+    result = await client.signAndBroadcast(account.address, [msgSend], fee, "Send AKT via CosmJS", BigInt(Date.now()) + BigInt(10000)).then(response => {
+      assertIsDeliverTxSuccess(response);
+      return response;
+    });
   } catch (error) {
     throw new Error(`Failed to send AKT: ${error}`);
   }

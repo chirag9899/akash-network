@@ -5,6 +5,8 @@ import {
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useWeb3Auth } from "../provider/authProvider";
+
 
 interface Address {
   city: string;
@@ -54,7 +56,6 @@ export const Checkout = () => {
 
   }, []);
 
-  console.log(fetchClientSecret)
   
   const options = { fetchClientSecret };
 
@@ -73,6 +74,24 @@ export const Checkout = () => {
 export const Return = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<Session>();
+  // const [userInfo, setUserInfo] = useState<any>(null);
+  // const { getUserInfo }: any = useWeb3Auth();
+
+
+  // useEffect(() => {
+  //   console.log("enter")
+  //   const fetchUserInfo = async () => {
+  //     try {
+  //       const info = await getUserInfo();
+  //       console.log("info",info)
+  //       setUserInfo(info);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   fetchUserInfo();
+  // }, [getUserInfo]);
 
 
 
@@ -80,9 +99,9 @@ export const Return = () => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const sessionId = urlParams.get('session_id');
-    const recipientAddress = "0x0000000000000000000000000000000000000000";
+    const recipientAddress = "akash1z47haahlta2d0xlh6402ukyuf43m7fnlfc8hax";
 
-    fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/session-status?session_id=${sessionId}&recipientAddress=${recipientAddress}`)
+    fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/session-status?session_id=${sessionId}&recipientAddress=${recipientAddress}`)
       .then((res) => res.json())
       .then((data) => {
         setData(data)

@@ -61,13 +61,16 @@ const Dropdown = ({userInfo}: {userInfo: any}) => {
               <div className='text-sm'>
                 {userInfo?.data.email}
               </div>
+              {
+                userInfo && 
               <div className="text-sm text-gray-500 py-2">
                 $ {((userInfo.balance[0].amount / 10 ** 6 )* 5.47).toFixed(2)} 
               </div>
+              }
             </div>
 
             <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" onClick={checkoutPage}>
-              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              <FontAwesomeIcon icon={faPlus} className="mr-2" imageRendering={userInfo.data.profileImage}/>
               Add money
             </a>
 

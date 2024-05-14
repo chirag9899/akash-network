@@ -36,7 +36,6 @@ const App: React.FC = () => {
         <Route path="/checkout/" element={<Checkout />} />
           <Route path="/DemoCards" element={<DemoCard />} />
           <Route path="/return" element={<Return />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />
           <Route path="/deploy" element={<Deploy />} />
       </Routes>
