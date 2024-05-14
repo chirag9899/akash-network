@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
         console.log(info)
         setUserInfo(info);
       } catch (error) {
-        console.error(error);
+        console.error("hello",error);
       }
     };
 
