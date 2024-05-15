@@ -11,11 +11,12 @@ const DemoCard: React.FC = () => {
                 {/* You can replicate <CreditCard /> multiple times or map through an array */}
             <CreditCard 
                 expiry="05/55" 
-                cardNumber="5555 5555 5555 4444" 
-                cardHolderName="John Doe" 
-                bankName={mastercard} 
+                cardNumber="4000 0035 6000 0008" 
+                cardHolderName="Ajay Devgan" 
+                bankName={visa} 
                 cvv="123" 
             />
+            
             
             <CreditCard 
                 expiry="03/35" 

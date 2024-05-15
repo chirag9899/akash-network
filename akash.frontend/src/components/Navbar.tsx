@@ -6,7 +6,7 @@ import { Wallet, inAppWallet } from 'thirdweb/wallets';
 import Dropdown from '../components/DropDown';
 import { useWeb3Auth } from '../provider/authProvider';
 import logo from '../assets/akashLogoFull.svg';
-
+import { toast } from 'react-toastify';
 
 
 const Navbar: React.FC = () => {
@@ -19,7 +19,6 @@ const Navbar: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const info = await getUserInfo();
-        console.log(info)
         setUserInfo(info);
       } catch (error) {
         console.error("hello",error);
@@ -27,7 +26,7 @@ const Navbar: React.FC = () => {
     };
 
     fetchUserInfo();
-  }, [getUserInfo]);
+  }, [getUserInfo ]);
 
   const navigate = useNavigate()
   return (

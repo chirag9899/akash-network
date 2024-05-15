@@ -6,6 +6,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useWeb3Auth } from "../provider/authProvider";
+import Loader from "./loader/Loader";
 
 
 interface Address {
@@ -39,12 +40,11 @@ export const Checkout = () => {
   const [searchParams] = useSearchParams();
   const amount = searchParams.get("amount");
   const currency = searchParams.get("currency");
-
   
 
-  const fetchClientSecret = useCallback(() => {
+  const fetchClientSecret = useCallback(async() => {
     // Create a Checkout Session
-    return fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/create-checkout-session`, {
+    return await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/create-checkout-session`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
@@ -74,45 +74,51 @@ export const Checkout = () => {
 export const Return = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<Session>();
-  // const [userInfo, setUserInfo] = useState<any>(null);
-  // const { getUserInfo }: any = useWeb3Auth();
+  const [loader, setLoader] = useState(false);
+  const { status, web3Auth, getUserInfo, getBalance }: any = useWeb3Auth();
 
 
-  // useEffect(() => {
-  //   console.log("enter")
-  //   const fetchUserInfo = async () => {
-  //     try {
-  //       const info = await getUserInfo();
-  //       console.log("info",info)
-  //       setUserInfo(info);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
+  const fetchdata = async ({sessionId}: {sessionId: string}) => {
+    console.log("called")
+    setLoader(true)
+    const info = await getUserInfo();
+    const recipientAddress = info.address;
 
-  //   fetchUserInfo();
-  // }, [getUserInfo]);
-
-
-
-  useEffect(() => {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const sessionId = urlParams.get('session_id');
-    const recipientAddress = "akash1z47haahlta2d0xlh6402ukyuf43m7fnlfc8hax";
-
-    fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/session-status?session_id=${sessionId}&recipientAddress=${recipientAddress}`)
+    await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/session-status?session_id=${sessionId}&recipientAddress=${recipientAddress}`)
       .then((res) => res.json())
       .then((data) => {
         setData(data)
         console.log("data",data)
-      });
-  }, []);
-
-  if (data?.status === 'unpaid') {
-    navigate('/checkout');
+      }).catch(() => navigate('/error'))
+      .finally(() => setLoader(false))
+    
   }
 
+  
+  useEffect(() => {
+   try {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const sessionId = urlParams.get('session_id');
+
+    if (!sessionId ) {
+      navigate('/'); // Replace '/anotherPage' with the path you want to redirect to
+      return;
+    }
+
+    fetchdata({ sessionId }) 
+   } catch (error) {
+    console.log("use effect",error)
+   }
+  }, [getUserInfo]);
+
+  if (data?.status === 'unpaid' || data?.status === 'incomplete') {
+    navigate('/checkoutForm');
+  }
+
+  if (loader) {
+    return <Loader/>
+  }
   if (data?.status === 'paid') {
     return (
       <section id="success"><div className="h-[80vh] ">
@@ -126,7 +132,7 @@ export const Return = () => {
             <h3 className="md:text-2xl text-base text-gray-900 font-semibold text-center">Payment Done!</h3>
             <p className="text-gray-600 my-2">Thank you for completing your secure online payment.</p>
             <p> Have a great day!  {data.customer_details.name || data.customer_details.email || "" } </p>
-            <div className="py-10 text-center" onClick={() => navigate('/')}>
+            <div className="py-10 text-center" onClick={() => window.location.href = '/'}>
                 <a href="#" className="px-12 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3">
                     GO BACK 
                </a>

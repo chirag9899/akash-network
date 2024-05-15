@@ -38,13 +38,13 @@ paymentManager.post('/create-checkout-session', async (req, res) => {
             ],
             billing_address_collection: "required",
             mode: 'payment',
-            // success_url: `${Domain}/return?success=true`,
-            // cancel_url: `${Domain}/return?canceled=true`,
-            return_url: `${Domain}/return?session_id={CHECKOUT_SESSION_ID}`
+            return_url: `${Domain}/return?session_id={CHECKOUT_SESSION_ID}`,
+            payment_intent_data: {metadata: {tokenTransfered: "false"}}
+
         });
 
 
-
+        console.log(session)
         res.send({ clientSecret: session.client_secret });
     } catch (error) {
         console.log(error)
@@ -56,36 +56,40 @@ paymentManager.get('/session-status', async (req, res) => {
     try {
         const { session_id, recipientAddress } = req.query;
         const session = await stripe.checkout.sessions.retrieve(session_id as string);
+        const paymentIntentId = session.payment_intent
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId as string)
+        console.log(paymentIntent)
         const amount = (session.amount_total / 100)
         const akt_amount = session.currency === "usd" ? (amount * 0.18) : (amount * 0.0022)
         let failed = false;
-    
 
-        if (session.payment_status == "paid") {
+
+        if (session.payment_status == "paid" && paymentIntent.metadata.tokenTransfered == "false") {
             try {
-                // console.log((akt_amount * (10 ** 6)).toString())
-                const data = await sendAKT(recipientAddress.toString(), (akt_amount * (10 ** 6)).toString())
+                console.log(paymentIntent)
+                // const data = await sendAKT(recipientAddress.toString(), (akt_amount * (10 ** 6)).toString())
+           await stripe.paymentIntents.update(paymentIntentId as string, { metadata: { tokenTransfered: "true" } })
 
             } catch (error) {
                 console.log(error)
                 failed = true
-                throw new Error("Payment not sent")
+                throw new Error("error sending token")
             }
         }
         else {
-            throw new Error("Payment not paid")
+            throw new Error(" token already sent")
         }
 
         res.send({
             status: session.payment_status,
             customer_details: session.customer_details,
-            // amount: (amount / (10 ** 6) + "Akt").toString(),
+            amount: (amount / (10 ** 6) + "Akt").toString(),
             failed: failed
 
         });
     } catch (error) {
         console.log(error)
-        throw new Error("session-status Failed")
+        throw new Error("not paid yet")
     }
 
 });

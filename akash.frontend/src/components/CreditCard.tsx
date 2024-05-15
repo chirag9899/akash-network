@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
 interface CreditCardProps {
     expiry: string;
@@ -12,8 +13,9 @@ const CreditCard: React.FC<CreditCardProps> = ({ expiry, cardNumber, cardHolderN
     // Function to copy card number to clipboard
     const copyToClipboard = () => {
         navigator.clipboard.writeText(cardNumber)
-            .then(() => alert('Card number copied!'))
-            .catch(err => console.error('Failed to copy text: ', err));
+            .then(() => toast.success('Card number copied!'))
+            .catch(() => toast.warn('copied Failed!'));
+            
     };
 
     return (
@@ -37,7 +39,7 @@ const CreditCard: React.FC<CreditCardProps> = ({ expiry, cardNumber, cardHolderN
                         <span className='text-sm text-gray-600'> {cvv} </span>
                     </div>
                     <div>
-                        <img className="h-6" src="https://www.svgrepo.com/show/521581/copy.svg" alt="Copy icon" onClick={copyToClipboard} />
+                        <img className="h-4 hover:scale-110" src="https://www.svgrepo.com/show/521581/copy.svg" alt="Copy icon" onClick={copyToClipboard} />
                     </div>
                 </div>
             </div>

@@ -6,7 +6,7 @@ import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
 import { ChainConfig } from "../helper/chainConfig";
 import { WalletServicesPlugin } from "@web3auth/wallet-services-plugin";
-
+import { toast } from "react-toastify";
 
 const Web3AuthContext = createContext({});
 
@@ -17,7 +17,8 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     const [privateKeyProvider, setPrivateKeyProvider] = useState<IProvider>();
     const [loggedIn, setLoggedIn] = useState(false);
     const [provider, setProvider] = useState<IProvider>();
-    const [ status ,setStatus] = useState<boolean>(false);
+    const [status, setStatus] = useState<ADAPTER_STATUS_TYPE | null>(null);
+
     // const [walletServicePlugin, setWalletServicePlugin] = useState<WalletServicesPlugin | null>();
 
     const isInitializedRef = useRef(false);
@@ -125,39 +126,9 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     useEffect(() => {
 
         if (web3Auth){
-            console.log(web3Auth)
-            setStatus(web3Auth.connected)
+            setStatus(web3Auth.status)
         }
-
-        const subscribeAuthEvents = () => {
-            if (!web3Auth) return;
-
-            web3Auth.on(ADAPTER_EVENTS.CONNECTED, (data: CONNECTED_EVENT_DATA) => {
-                console.log("connected to wallet", data);
-            });
-
-            web3Auth.on(ADAPTER_EVENTS.CONNECTING, () => {
-                console.log("connecting");
-            });
-
-            web3Auth.on(ADAPTER_EVENTS.DISCONNECTED, () => {
-                console.log("disconnected");
-            });
-
-            web3Auth.on(ADAPTER_EVENTS.ERRORED, (error) => {
-                console.log("error", error);
-            });
-        };
-
-        subscribeAuthEvents();
-
-        return () => {
-            if (web3Auth) {
-                // Unsubscribe event listeners
-                web3Auth.removeAllListeners();
-            }
-        };
-    }, [web3Auth, web3Auth?.connected]);
+    }, [web3Auth, web3Auth?.status]);
 
     const login = async () => {
         const web3authProvider = web3Auth && await web3Auth.connect();
@@ -194,6 +165,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
             const wallet = await DirectSecp256k1Wallet.fromKey(privateKey, chainConfig.ticker);
             return { privateKey, wallet };
         } catch (error: any) {
+            toast.error(error.message || error as string);
             throw new Error(error.message || error as string);
         }
     };
@@ -223,6 +195,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
             const balance = await client.getAllBalances(address);
             return { address, balance };
         } catch (error: any) {
+            toast.error(error.message || error as string);
             throw new Error(error.message || error);
         }
     };
@@ -243,17 +216,20 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
             const height = result.height;
             return { transactionHash, height };
         } catch (error: any) {
+            toast.error(error.message || error as string);
             throw new Error(error.message || error);
         }
     };
 
 
     const getUserInfo = async () => {
-        if (!web3Auth || !privateKeyProvider) {
-            throw new Error("Web3Auth or private key provider not initialized");
-        }
-
+   
         try {
+            if (!web3Auth || !privateKeyProvider || !web3Auth.connected) {
+                console.log("Web3Auth or private key provider not initialized")
+                return
+                // throw new Error("Web3Auth or private key provider not initialized");
+            }
             const data = await web3Auth.getUserInfo();
             const { privateKey, wallet } = await getPrivateKeyAndWallet();
             // const accounts = await wallet.getAccounts({ network: chainConfig.ticker }, { prefix: chainConfig.ticker });
@@ -269,13 +245,15 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
             return { data , address, balance };
             return 
         } catch (error: any) {
+            toast.error(error.message || error as string);
             console.error("here", error);
             throw new Error(error.message || error);
         }
     };
 
+
     return (
-        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout, status, web3Auth }}>
+        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout, status, web3Auth  }}>
             {children}
         </Web3AuthContext.Provider>
     );
