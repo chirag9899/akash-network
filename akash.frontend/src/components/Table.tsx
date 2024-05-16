@@ -10,9 +10,10 @@ interface TableProps {
   data: any[];
   columns: TableColumn[];
   onActionClick?: (row: any) => void;
+  isLoading: boolean;
 }
 
-const Table: React.FC<TableProps> = ({ data, columns, onActionClick }) => {
+const Table: React.FC<TableProps> = ({ data, columns, onActionClick, isLoading }) => {
   return (
     <div className="flex flex-col bg-white rounded-lg shadow-lg border border-gray-200">
       <div className="-m-1.5 overflow-x-auto">
@@ -40,12 +41,15 @@ const Table: React.FC<TableProps> = ({ data, columns, onActionClick }) => {
                         key={column.key}
                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
                       >
-                        {column.key === 'Action' ? (
+                        {column.key === 'Auction' && row[column.key] ? (
                           <button
                             className="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-500 hover:text-red-600 disabled:opacity-50 disabled:pointer-events-none"
                             onClick={() => onActionClick && onActionClick(row)}
+                            disabled={isLoading}
+
                           >
-                            Recruit
+                            {isLoading ? 'Loading...' : 'Recruit'}
+
                           </button>
                         ) : (
                           row[column.key]

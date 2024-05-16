@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import DemoCard from './pages/DemoCard';

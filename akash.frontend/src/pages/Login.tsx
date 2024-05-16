@@ -66,15 +66,15 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between min-h-screen mx-auto px-72">
-        <div className='flex-col px-10'>
-          <img src={logo} alt="logo" className='h-16' />
-          <div className='py-5 text-3xl text-bold font-bold'>
+      <div className="flex flex-col items-center justify-between space-y-10  py-32">
+        <div className='px-10 py-10 flex flex-col items-center gap-2'>
+          <img src={logo} alt="logo" className='h-40' />
+          <div className='py-5  text-bold font-bold text-5xl'>
             Welcome to akash Network
           </div>
         </div>
         <div>
-          <div className=" bg-akash-red flex w-full p-4 rounded-lg spaxe-x-2 space-y-2" >{unloggedInView} </div>
+          <div className=" bg-akash-red flex w-full p-4 rounded-lg spaxe-x-2 space-y-2 text-white" >{unloggedInView} </div>
         </div>
       </div>
 
