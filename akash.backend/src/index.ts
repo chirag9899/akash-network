@@ -9,16 +9,12 @@ import deployManager from './routes/deploy_manger';
 import { startCheckingForBids } from './utils/cronjob';
 import walletManagerRouter from './routes/wallet_manager';
 import dbManagerRouter from './routes/db_managerr';
-// This is a public sample test API key.
-// Don’t submit any personally identifiable information in requests made with this key.
-// Sign in to see your own test API key embedded in code samples.
-
-
+const port = process.env.PORT || 3000;
 
 const app = express();
 const Domain = process.env.Domain;
 
-// startCheckingForBids('* * * * * *');
+startCheckingForBids('*/5 * * * *');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2024-04-10',
