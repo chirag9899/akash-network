@@ -42,19 +42,19 @@ export const Checkout = () => {
   const currency = searchParams.get("currency");
   
 
-  const fetchClientSecret = useCallback(async() => {
+   const fetchClientSecret = useCallback(async() => {
     // Create a Checkout Session
-    return await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/create-checkout-session`, {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ amount , currency }) // Send amount to backend
-    })
-      .then((res) => res.json())
-      .then((data) => data.clientSecret);
+    return await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/create-checkout-session`, 
+      { amount , currency }, // Send amount to backend
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      .then((res) => res.data.clientSecret);
 
   }, []);
+
 
   
   const options = { fetchClientSecret };
@@ -84,13 +84,15 @@ export const Return = () => {
     const info = await getUserInfo();
     const recipientAddress = info.address;
 
-    await fetch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/session-status?session_id=${sessionId}&recipientAddress=${recipientAddress}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data)
-        console.log("data",data)
-      }).catch(() => navigate('/error'))
-      .finally(() => setLoader(false))
+    
+  await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/session-status?session_id=${sessionId}&recipientAddress=${recipientAddress}`)
+        .then((res) => {
+          setData(res.data);
+          console.log("data", res.data);
+        })
+        .catch(() => navigate('/error'))
+        .finally(() => setLoader(false));
+    }
     
   }
 
