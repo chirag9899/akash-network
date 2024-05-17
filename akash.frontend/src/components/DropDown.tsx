@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import  { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlus, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import { useDisconnect, useActiveWallet } from 'thirdweb/react';
-import { Wallet, inAppWallet } from 'thirdweb/wallets';
 import { useNavigate } from 'react-router-dom';
 import { useWeb3Auth } from '../provider/authProvider';
 

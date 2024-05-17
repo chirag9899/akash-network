@@ -3,16 +3,13 @@ import Login from './pages/Login';
 import DemoCard from './pages/DemoCard';
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
-import { useActiveWalletConnectionStatus } from 'thirdweb/react';
-import { chainConfig } from './helper/chainConfig';
-import { Web3AuthProvider, useWeb3Auth } from './provider/authProvider';
+import {  useWeb3Auth } from './provider/authProvider';
 import CheckoutForm from './components/CheckoutForm';
 import { Checkout, Return } from './components/Checkout';
 import Deploy from './pages/Deploy';
 import { ADAPTER_STATUS } from '@web3auth/base';
 import Loader from './components/loader/Loader';
 import ErrorPage from './components/ErrorPage';
-import logo from './assets/grid.png';
 import { useEffect, useState } from 'react';
 import CommingSoon from './components/CommingSoon';
 

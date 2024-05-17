@@ -1,22 +1,15 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Web3Auth } from "@web3auth/modal";
-import { WEB3AUTH_NETWORK, IProvider, WALLET_ADAPTERS, ADAPTER_EVENTS, CONNECTED_EVENT_DATA, ADAPTER_STATUS_TYPE, OPENLOGIN_NETWORK_TYPE } from "@web3auth/base";
+import { WEB3AUTH_NETWORK, IProvider, ADAPTER_STATUS_TYPE, OPENLOGIN_NETWORK_TYPE } from "@web3auth/base";
 import { DirectSecp256k1Wallet, Registry } from "@cosmjs/proto-signing";
 import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
 import { ChainConfig } from "../helper/chainConfig";
-import { WalletServicesPlugin } from "@web3auth/wallet-services-plugin";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { MsgCreateDeployment } from "@akashnetwork/akash-api/v1beta3";
-import { toBase64 } from "pvutils";
 import { getAkashTypeRegistry } from "@akashnetwork/akashjs/build/stargate";
 import { SDL } from "@akashnetwork/akashjs/build/sdl";
-import { createStarGateMessage } from "@akashnetwork/akashjs/build/pbclient/pbclient";
-import * as cert from "@akashnetwork/akashjs/build/certificates";
-
-import { Message } from "@akashnetwork/akashjs/build/stargate";
-import { CertificatePem } from "@akashnetwork/akashjs/build/certificates/certificate-manager/CertificateManager";
 
 
 const Web3AuthContext = createContext({});
@@ -82,33 +75,9 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
 
 
 
-    const [conversionUsd, setConversionUsd] = useState(localStorage.getItem('conversion'));
+    const [conversionUsd, _] = useState(localStorage.getItem('conversion'));
 
     console.log(conversionUsd)
-    // useEffect(() => {
-    //     const localStorageConversion = localStorage.getItem('conversion');
-    //     if (Object.keys(conversion).length === 0 && localStorageConversion) {
-    //         try {
-    //             const parsedConversion = JSON.parse(localStorageConversion);
-    //             if (typeof parsedConversion === 'object' && Object.values(parsedConversion).every(val => typeof val === 'number')) {
-    //                 setConversion(parsedConversion);
-    //             }
-    //         } catch (error) {
-    //             console.error('Error parsing conversion from local storage:', error);
-    //         }
-    //     } else if (Object.keys(conversion).length === 0) {
-    //         axios.get('http://localhost:3000/conversion')
-    //             .then(response => {
-    //                 setConversion(response.data);
-    //                 localStorage.setItem('conversion', JSON.stringify(response.data));
-    //             })
-    //             .catch(error => {
-    //                 console.error('Error fetching conversion:', error);
-    //             });
-    //     }
-    // }, [conversion]);
-
- 
   
 
     useEffect(() => {
@@ -228,7 +197,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
                 throw new Error("Web3Auth or private key provider not initialized");
             }
 
-            const { privateKey, wallet } = await getPrivateKeyAndWallet();
+            const {  wallet } = await getPrivateKeyAndWallet();
             // const accounts = await wallet.getAccounts({ network: chainConfig.ticker }, { prefix: chainConfig.ticker });
             const accounts = await wallet.getAccounts();
             const address = accounts.length > 0 ? accounts[0].address : null;
@@ -347,7 +316,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
                 // throw new Error("Web3Auth or private key provider not initialized");
             }
             const data = await web3Auth.getUserInfo();
-            const { privateKey, wallet } = await getPrivateKeyAndWallet();
+            const {  wallet } = await getPrivateKeyAndWallet();
             // const accounts = await wallet.getAccounts({ network: chainConfig.ticker }, { prefix: chainConfig.ticker });
             const accounts = await wallet.getAccounts();
             const address = accounts.length > 0 ? accounts[0].address : null;
@@ -380,19 +349,19 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
         }
     };
 
-    function base64ToUInt(base64: string) {
-        if (typeof window !== "undefined") {
-          const binary_string = window.atob(base64);
-          const len = binary_string.length;
-          const bytes = new Uint8Array(len);
-          for (let i = 0; i < len; i++) {
-            bytes[i] = binary_string.charCodeAt(i);
-          }
-          return bytes;
-        }
+    // function base64ToUInt(base64: string) {
+    //     if (typeof window !== "undefined") {
+    //       const binary_string = window.atob(base64);
+    //       const len = binary_string.length;
+    //       const bytes = new Uint8Array(len);
+    //       for (let i = 0; i < len; i++) {
+    //         bytes[i] = binary_string.charCodeAt(i);
+    //       }
+    //       return bytes;
+    //     }
       
-        return Buffer.from(base64, "base64");
-      }
+    //     return Buffer.from(base64, "base64");
+    //   }
 
 
     const deploy = async () => {
@@ -423,7 +392,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
 
             if(executedTX) {
                try {
-                const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/saveDeployment`, { 
+                 await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/saveDeployment`, { 
                   data : {
                     owner: acountAddress,
                     txhash: executedTX.transactionHash,

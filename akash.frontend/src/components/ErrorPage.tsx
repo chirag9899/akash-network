@@ -1,6 +1,4 @@
 
-type Props = {}
-
 const ErrorPage = () => {
   return (
     (

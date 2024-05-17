@@ -1,7 +1,6 @@
 import { ChainNamespaceType } from "@web3auth/base";
 
-const clientId = "BN-K3fMMEi3w-Iull0MvE-oz7PLPruAEhWEycwxy2sobF4tPQv3DbPKVOxP066wupxVeXYcD80o2DFbtiyZhr5w"
-const secretId = "b930b649d6bba5991f75635a92ef4bb0d15a0047dd7e93bf9bf472144f009fd8"
+const clientId = import.meta.env.VITE_WEB3AUTH_CLIENT_ID
 
 export interface ChainConfig {
     chainNamespace: ChainNamespaceType;

@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useActiveWalletConnectionStatus, ThirdwebProvider, ConnectButton, lightTheme, useDisconnect, useActiveWallet } from 'thirdweb/react';
-import { createThirdwebClient } from 'thirdweb';
-import { Wallet, inAppWallet } from 'thirdweb/wallets';
 import Dropdown from '../components/DropDown';
 import { useWeb3Auth } from '../provider/authProvider';
 import logo from '../assets/akashLogoFull.svg';
-import { toast } from 'react-toastify';
+
 
 
 const Navbar: React.FC = () => {
   // const connectionStatus = useActiveWalletConnectionStatus();
-  const { status, web3Auth, getUserInfo, getBalance }: any = useWeb3Auth();
+  const { status, getUserInfo }: any = useWeb3Auth();
   const [userInfo, setUserInfo] = useState<any>(null);
 
 

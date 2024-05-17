@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Table from '../components/Table';
-import axios from 'axios';
 import { useWeb3Auth } from '../provider/authProvider';
 import { toast } from 'react-toastify';
 

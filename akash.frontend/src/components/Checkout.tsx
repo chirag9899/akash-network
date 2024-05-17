@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -35,7 +35,7 @@ interface Session {
 
 export const Checkout = () => {
 
-  const stripePromise = React.useMemo(() => loadStripe("pk_test_51PDhpVSF6nbQBJViaDXafiDP9OPTD3Ock0qdz7zyR8ZPgJimbaQmwCFTrLw7ilqzU8VLmgBBQQbykK40E8EaIdMp00EUa3XYm9"), []);
+  const stripePromise = useMemo(() => loadStripe("pk_test_51PDhpVSF6nbQBJViaDXafiDP9OPTD3Ock0qdz7zyR8ZPgJimbaQmwCFTrLw7ilqzU8VLmgBBQQbykK40E8EaIdMp00EUa3XYm9"), []);
 
   const [searchParams] = useSearchParams();
   const amount = searchParams.get("amount");
@@ -75,7 +75,7 @@ export const Return = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<Session>();
   const [loader, setLoader] = useState(false);
-  const { status, web3Auth, getUserInfo, getBalance }: any = useWeb3Auth();
+  const { getUserInfo }: any = useWeb3Auth();
 
 
   const fetchdata = async ({sessionId}: {sessionId: string}) => {
