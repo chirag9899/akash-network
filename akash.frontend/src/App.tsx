@@ -12,6 +12,7 @@ import Deploy from './pages/Deploy';
 import { ADAPTER_STATUS } from '@web3auth/base';
 import Loader from './components/loader/Loader';
 import ErrorPage from './components/ErrorPage';
+import logo from './assets/grid.png';
 
 const App: React.FC = () => {
 
@@ -19,9 +20,13 @@ const App: React.FC = () => {
   const { status, web3Auth , userInfo}: any = useWeb3Auth();
 
   return (
-    <>
+    // <div>
+    <div>
+
     <Router>
       <Navbar />
+      {/* <div className='bg-stone-50 h-[90vh]'  style={{ backgroundImage: `url(${logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}> */}
+      <div className="h-full bg-[url('./assets/grid1.png')]" >
       <Routes>
         <Route path="*" element={
           status == ADAPTER_STATUS.CONNECTING &&  <Loader />
@@ -39,8 +44,9 @@ const App: React.FC = () => {
         <Route path="/deploy" element={<Deploy />} />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
+        </div>
     </Router>
-    </>
+    </div>
    
 
   );

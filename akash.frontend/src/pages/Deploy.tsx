@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Table from '../components/Table';
 import axios from 'axios';
 import { useWeb3Auth } from '../provider/authProvider';
+import { toast } from 'react-toastify';
 
 interface Deployment {
     owner: string;
@@ -64,6 +65,7 @@ const Deploy: React.FC = () => {
             setFetchedData(data)
         } catch (error) {
             console.log(error)
+            toast.error(`NO Order Present: ${error}`)
         }
         finally {
 
@@ -72,7 +74,8 @@ const Deploy: React.FC = () => {
 
     return (
         <>
-            <div className="flex-col items-center justify-center space-y-5 m-32 ">
+            <div className="h-[90vh]">
+            <div className="flex-col items-center justify-center space-y-5 p-32">
                 <div className="text-center">
                     <h1 className="text-5xl font-bold font-madmi text-primary-text">Get GPUs at the best prices available</h1>
                 </div>
@@ -87,7 +90,7 @@ const Deploy: React.FC = () => {
                     onActionClick={handlePriceButtonClick}
                     isLoading={isLoading}
                 />
-                {fetchedData && isModalOpen  ? (
+                {fetchedData.length > 0 && isModalOpen  ? (
                     <div className="fixed z-10 inset-0 overflow-y-auto">
                         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -96,12 +99,12 @@ const Deploy: React.FC = () => {
                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                    <div className="sm:flex sm:items-start">
-                                        <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                            <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                    <div className="sm:flex sm:items-center flex items-center justify-center">
+                                        <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex flex-col gap-y-4">
+                                            <h3 className="text-lg leading-6 font-medium text-gray-900 text-center" id="modal-title">
                                                 Deployed Status
                                             </h3>
-                                            <div className="mt-2">
+                                            <div className="mt-2 flex justify-center  items-center">
                                                 <table className="min-w-full divide-y divide-gray-200">
                                                     <thead>
                                                         <tr>
@@ -136,6 +139,7 @@ const Deploy: React.FC = () => {
 
                 }
 
+            </div>
             </div>
 
         </>

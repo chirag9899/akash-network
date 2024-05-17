@@ -11,7 +11,7 @@ const CheckoutForm = () => {
     navigate(`/checkout?amount=${amount}&currency=${currency}`);
   };
   return (
-    <div className="flex flex-col items-center mt-20">
+    <div className="flex flex-col items-center pt-32 h-[90vh] ">
       <h2 className="text-4xl font-bold text-gray-800 font-roboto">Add Money</h2>
       <div className="bg-white border rounded-lg shadow-lg p-8 mt-6 w-[40vw]">
         <form onSubmit={handleDeposit} className="flex flex-col gap-6">
@@ -43,7 +43,7 @@ const CheckoutForm = () => {
           </div>
           <button
             type="submit"
-            className="bg-akash-red hover:bg-akash-red-dark text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
+            className="bg-gradient-to-tl from-akash-red to-akash-red-dark hover:from-akash-red-dark hover:to-akash-red  text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out"
           >
             Deposit Now
           </button>

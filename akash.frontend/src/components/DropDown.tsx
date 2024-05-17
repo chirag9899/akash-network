@@ -58,15 +58,14 @@ const Dropdown = ({userInfo}: {userInfo: any}) => {
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             <div className="block px-4 py-2 text-sm text-gray-700" role="menuitem" >
             {userInfo?.data.name}
-              <div className='text-sm'>
+              <div className='text-xs'>
                 {userInfo?.data.email}
               </div>
               {
                 userInfo && userInfo.balance.length > 0 &&
               <div className="text-sm text-gray-500 py-2">
                   {/* $ {((userInfo.balance[0].amount / 10 ** 6 )* 5.47).toFixed(2)}  */}
-
-                $ {((  userInfo.balance[0].amount / 10 ** 6) * conversionUsd).toPrecision(2)} 
+                $ {((  userInfo.balance[0].amount / 10 ** 6) * conversionUsd).toFixed(2)} 
               </div>
               }
             </div>
