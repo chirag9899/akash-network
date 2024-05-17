@@ -24,7 +24,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setShowScreen(window.innerWidth <= 640);
+      setShowScreen(window.innerWidth <= 730);
     };
   
     // Call the function once to set the initial state
