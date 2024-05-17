@@ -8,7 +8,7 @@ import { useWeb3Auth } from '../provider/authProvider';
 
 const Dropdown = ({userInfo}: {userInfo: any}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { logout }: any = useWeb3Auth();
+  const { logout, conversionUsd }: any = useWeb3Auth();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
 
@@ -64,7 +64,9 @@ const Dropdown = ({userInfo}: {userInfo: any}) => {
               {
                 userInfo && userInfo.balance.length > 0 &&
               <div className="text-sm text-gray-500 py-2">
-                $ {((userInfo.balance[0].amount / 10 ** 6 )* 5.47).toFixed(2)} 
+                  {/* $ {((userInfo.balance[0].amount / 10 ** 6 )* 5.47).toFixed(2)}  */}
+
+                $ {((  userInfo.balance[0].amount / 10 ** 6) * conversionUsd).toPrecision(2)} 
               </div>
               }
             </div>

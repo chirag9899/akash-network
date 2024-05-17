@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import DemoCard from './pages/DemoCard';
 import Home from './pages/Home';
@@ -18,36 +18,7 @@ const App: React.FC = () => {
 
   const { status, web3Auth , userInfo}: any = useWeb3Auth();
 
-
-//   export declare const ADAPTER_STATUS: {
-//     readonly NOT_READY: "not_ready";
-//     readonly READY: "ready";
-//     readonly CONNECTING: "connecting";
-//     readonly CONNECTED: "connected";
-//     readonly DISCONNECTED: "disconnected";
-//     readonly ERRORED: "errored";
-// };
   return (
-    // <Router>
-    //   <Navbar />
-    //   <Routes>
-    //     <Route path="*" element={
-    //       status ? <Home /> : <Login />
-    //     } />
-    //     <Route path="/checkoutForm" element={
-    //       status ? <CheckoutForm /> : <Login />
-    //     } />
-    //     <Route
-    //       path="/checkout/"
-    //       element={<Checkout />}
-    //     />
-    //     <Route path="/checkout/" element={<Checkout />} />
-    //       <Route path="/DemoCards" element={<DemoCard />} />
-    //       <Route path="/return" element={<Return />} />
-    //       <Route path="/home" element={<Home />} />
-    //       <Route path="/deploy" element={<Deploy />} />
-    //   </Routes>
-    // </Router>
     <>
     <Router>
       <Navbar />
@@ -61,8 +32,8 @@ const App: React.FC = () => {
           || status == ADAPTER_STATUS.READY &&  <Login />
           || status == null &&  <Loader />
         } />
-        <Route path="/checkoutForm" element={ status == ADAPTER_STATUS.CONNECTED && <CheckoutForm/> } />
-        <Route path="/checkout/"element={  <Checkout/> } />
+        <Route path="/checkoutForm" element={ status == ADAPTER_STATUS.CONNECTED ? <CheckoutForm/> : <Navigate to={"/"}/>} />
+        <Route path="/checkout/"element={ status == ADAPTER_STATUS.CONNECTED ? <Checkout/> : <Navigate to={"/"}/> } />
         <Route path="/DemoCards" element={<DemoCard />} />
         <Route path="/return" element={ status == ADAPTER_STATUS.CONNECTED && <Return />} />
         <Route path="/deploy" element={<Deploy />} />

@@ -7,14 +7,13 @@ const rpcUrl = "https://rpc.sandbox-01.aksh.pw:443";
 const chainId = "sandbox-01";
 
 // Your private key in base64 encoding
-const privateKey = "c3d4c00caea2bf3842e6b5638425c1f177c1b22407b0e7e0a1783666cca7fa60";
+// const privateKey = "c3d4c00caea2bf3842e6b5638425c1f177c1b22407b0e7e0a1783666cca7fa60";
+const privateKey = process.env.PRIVATE_KEY;
 
 // Function to send AKT tokens
 export async function sendAKT( recipientAddress: string, amount: string) {
 
   // Create a wallet with the private key
-  // const privateKeyBytes = new Uint8Array(Buffer.from(privateKey, 'base64')); // Convert from base64 to Uint8Array
-
   const wallet = await DirectSecp256k1Wallet.fromKey(Buffer.from(privateKey, 'hex'), "akash");
 
   // Connect to the Akash network

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Web3Auth } from "@web3auth/modal";
-import { WEB3AUTH_NETWORK, IProvider, WALLET_ADAPTERS, ADAPTER_EVENTS, CONNECTED_EVENT_DATA, ADAPTER_STATUS_TYPE } from "@web3auth/base";
+import { WEB3AUTH_NETWORK, IProvider, WALLET_ADAPTERS, ADAPTER_EVENTS, CONNECTED_EVENT_DATA, ADAPTER_STATUS_TYPE, OPENLOGIN_NETWORK_TYPE } from "@web3auth/base";
 import { DirectSecp256k1Wallet, Registry } from "@cosmjs/proto-signing";
 import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
@@ -81,6 +81,36 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     const isInitializedRef = useRef(false);
 
 
+
+    const [conversionUsd, setConversionUsd] = useState(localStorage.getItem('conversion'));
+
+    console.log(conversionUsd)
+    // useEffect(() => {
+    //     const localStorageConversion = localStorage.getItem('conversion');
+    //     if (Object.keys(conversion).length === 0 && localStorageConversion) {
+    //         try {
+    //             const parsedConversion = JSON.parse(localStorageConversion);
+    //             if (typeof parsedConversion === 'object' && Object.values(parsedConversion).every(val => typeof val === 'number')) {
+    //                 setConversion(parsedConversion);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error parsing conversion from local storage:', error);
+    //         }
+    //     } else if (Object.keys(conversion).length === 0) {
+    //         axios.get('http://localhost:3000/conversion')
+    //             .then(response => {
+    //                 setConversion(response.data);
+    //                 localStorage.setItem('conversion', JSON.stringify(response.data));
+    //             })
+    //             .catch(error => {
+    //                 console.error('Error fetching conversion:', error);
+    //             });
+    //     }
+    // }, [conversion]);
+
+ 
+  
+
     useEffect(() => {
         const initWeb3Auth = async () => {
             try {
@@ -91,9 +121,15 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
                 });
                 setPrivateKeyProvider(provider);
 
+                let web3AuthNetwork: OPENLOGIN_NETWORK_TYPE | undefined;
+                if (import.meta.env.VITE_APP_PRODUCTION === "false") {
+                    web3AuthNetwork = WEB3AUTH_NETWORK.SAPPHIRE_DEVNET;
+                } else {
+                    web3AuthNetwork = WEB3AUTH_NETWORK.SAPPHIRE_MAINNET;
+                }
                 const web3authInstance = new Web3Auth({
                     clientId: chainConfig.clientId,
-                    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+                    web3AuthNetwork: web3AuthNetwork,
                     privateKeyProvider: provider,
                 });
 
@@ -105,6 +141,22 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
                     setLoggedIn(true);
                 }
                 setWeb3AuthInstance(web3authInstance);
+
+                if (!localStorage.getItem('conversion-timestamp') || parseInt(localStorage.getItem('conversion-timestamp')!) < Date.now() / 1000) {
+                    console.log(parseInt(localStorage.getItem('conversion-timestamp')!) , Date.now() / 1000)
+                     await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api//conversionAkt_Usd`)
+                        .then(response => {
+                            console.log(response)
+                            const conversion = response.data.price;
+                            localStorage.setItem('conversion', JSON.stringify(conversion));
+                            localStorage.setItem('conversion-timestamp', (Date.now() / 1000 + 18000).toString());
+                        })
+                        .catch(error => {
+                            console.error('Error fetching conversion:', error);
+                        });
+                }
+
+                
                 isInitializedRef.current = true; // Mark as initialized
             } catch (error: any) {
                 console.error("Error initializing wallet:", error);
@@ -361,49 +413,14 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
         const height = await signingClient.getHeight()
         try {
 
-            const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/createCertificateTx`, { address: acountAddress });
+            // const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/createCertificateTx`, { address: acountAddress });
             // const pem = response.data.certificate.pem
-            const pem: Pick<CertificatePem, "cert" | "publicKey"> = await cert.createCertificate(acountAddress); //certificate
-
-            console.log(pem)
-                // if ("csr" in pem && !("cert" in pem)) {
-                //     console.trace("The `csr` field is deprecated. Use `cert` instead.");
-                // }
-                // const certKey = "cert" in pem ? pem.cert : pem.csr;
-                // const encodedCsr = base64ToUInt(toBase64(certKey));
-                // const encdodedPublicKey = base64ToUInt(toBase64(pem.publicKey));
-                // const message = createStarGateMessage(Message.MsgCreateCertificate, {
-                //     owner: acountAddress,
-                //     cert: encodedCsr,
-                //     pubkey: encdodedPublicKey 
-                // });
-
-                // const executeData = await signingClient.signAndBroadcast(acountAddress, [message.message], message.fee, "certificate signed");
-                console.log(acountAddress)
-                const executeData = await cert.broadcastCertificate(pem, acountAddress, signingClient as any );
-                // const signedData = await signingClient.sign(acountAddress, [message.message], message.fee, "certificate signed");
-
-                // const broadcast = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/broadcastCertificateTx`, { certificate: pem, address: acountAddress, signedTx: signedData });
-
-                console.log(executeData)
-            // const { certificate, msg, memo } = response;
-
-            // console.log(certificate, msg, memo)
-
-            // const execute = await signingClient.signAndBroadcast(acountAddress, [certificateTX.data.message], certificateTX.data.fee, certificateTX.data.memo);
-
-            // console.log(signedData)
-            return
-
-            // return { pem, message, memo }
-            // signerAddress: string, messages: readonly EncodeObject[], fee: StdFee, memo: string
-            // const signedTx = signingClient.sign(acountAddress, [certificateTX.data.message], certificateTX.data.fee,certificateTX.data.memo);
+            // const executeData = await cert.broadcastCertificate(pem, acountAddress, signingClient as any );
 
             const txData = await createDeploymentTx(acountAddress, height);
 
             const executedTX = await signingClient.signAndBroadcast(acountAddress, [txData.msg], txData.fee, txData.memo);
 
-            console.log("enterrrrrrrrrr",txData, executedTX)
             if(executedTX) {
                try {
                 const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/saveDeployment`, { 
@@ -432,7 +449,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
     }
 
     return (
-        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout, status, web3Auth, provider, deploy, getOrdersByOwner }}>
+        <Web3AuthContext.Provider value={{ getBalance, sendTransaction, getUserInfo, getPrivateKeyAndWallet, loggedIn, setLoggedIn, login, logout, status, web3Auth, provider, deploy, getOrdersByOwner , conversionUsd}}>
             {children}
         </Web3AuthContext.Provider>
     );

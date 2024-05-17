@@ -1,6 +1,7 @@
 import express from 'express';
 import { Stripe } from 'stripe';
 import { sendAKT } from '../utils/transactions';
+import axios from 'axios';
 
 const paymentManager = express.Router();
 
@@ -52,23 +53,34 @@ paymentManager.post('/create-checkout-session', async (req, res) => {
     }
 });
 
+paymentManager.get('/conversionAkt_Usd', async (req, res) => {
+    try {
+        const conversion = await axios.get('https://api.coinmarketcap.com/data-api/v3/tools/price-conversion?amount=1&id=7431&convert_id=2781,2796');
+        res.send({price :conversion.data.data.quote[0].price})
+    } catch (error) {
+        console.log(error)
+        throw new Error("conversion Error")
+    }
+})
+
 paymentManager.get('/session-status', async (req, res) => {
     try {
+        const conversion = await axios.get('https://api.coinmarketcap.com/data-api/v3/tools/price-conversion?amount=1&id=7431&convert_id=2781,2796');
         const { session_id, recipientAddress } = req.query;
         const session = await stripe.checkout.sessions.retrieve(session_id as string);
         const paymentIntentId = session.payment_intent
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId as string)
         console.log(paymentIntent)
         const amount = (session.amount_total / 100)
-        const akt_amount = session.currency === "usd" ? (amount * 0.18) : (amount * 0.0022)
+        const akt_amount = session.currency === "usd" ? (amount * (1 / conversion.data.data.quote[0].price)) : (amount * (1/ conversion.data.data.quote[1].price))
         let failed = false;
 
 
         if (session.payment_status == "paid" && paymentIntent.metadata.tokenTransfered == "false") {
             try {
                 console.log(paymentIntent)
-                // const data = await sendAKT(recipientAddress.toString(), (akt_amount * (10 ** 6)).toString())
-           await stripe.paymentIntents.update(paymentIntentId as string, { metadata: { tokenTransfered: "true" } })
+                await sendAKT(recipientAddress.toString(), (akt_amount * (10 ** 6)).toString())
+                await stripe.paymentIntents.update(paymentIntentId as string, { metadata: { tokenTransfered: "true" } })
 
             } catch (error) {
                 console.log(error)
@@ -93,6 +105,9 @@ paymentManager.get('/session-status', async (req, res) => {
     }
 
 });
+
+
+
 
 
 

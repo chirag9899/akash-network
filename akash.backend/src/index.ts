@@ -5,6 +5,10 @@ import cookieParser from 'cookie-parser';
 import Stripe from 'stripe';
 import paymentManager from './routes/payment_manger';
 import express from 'express';
+import deployManager from './routes/deploy_manger';
+import { startCheckingForBids } from './utils/cronjob';
+import walletManagerRouter from './routes/wallet_manager';
+import dbManagerRouter from './routes/db_managerr';
 // This is a public sample test API key.
 // Don’t submit any personally identifiable information in requests made with this key.
 // Sign in to see your own test API key embedded in code samples.
@@ -13,6 +17,8 @@ import express from 'express';
 
 const app = express();
 const Domain = 'http://localhost:5173';
+
+// startCheckingForBids('* * * * * *');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2024-04-10',
@@ -25,6 +31,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // creating routes
 app.use("/api", paymentManager);
+app.use("/api", deployManager);
+app.use("/api", walletManagerRouter);
+app.use("/api", dbManagerRouter);
 
 
 app.post('/create-checkout-session', async (req, res) => {
