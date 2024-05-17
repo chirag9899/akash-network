@@ -5,9 +5,8 @@ import axios from 'axios';
 
 const paymentManager = express.Router();
 
-const Domain = 'http://localhost:5173';
+const Domain = process.env.Domain;
 
-console.log("found", process.env.STRIPE_SECRET_KEY)
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2024-04-10',

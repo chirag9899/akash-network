@@ -16,7 +16,7 @@ import dbManagerRouter from './routes/db_managerr';
 
 
 const app = express();
-const Domain = 'http://localhost:5173';
+const Domain = process.env.Domain;
 
 // startCheckingForBids('* * * * * *');
 
@@ -58,8 +58,6 @@ app.post('/create-checkout-session', async (req, res) => {
         ],
         billing_address_collection: "required",
         mode: 'payment',
-        // success_url: `${Domain}/return?success=true`,
-        // cancel_url: `${Domain}/return?canceled=true`,
         return_url: `${Domain}/return?session_id={CHECKOUT_SESSION_ID}`});
 
      
