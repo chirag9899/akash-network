@@ -13,41 +13,65 @@ import { ADAPTER_STATUS } from '@web3auth/base';
 import Loader from './components/loader/Loader';
 import ErrorPage from './components/ErrorPage';
 import logo from './assets/grid.png';
+import { useEffect, useState } from 'react';
+import CommingSoon from './components/CommingSoon';
 
 const App: React.FC = () => {
 
 
-  const { status, web3Auth , userInfo}: any = useWeb3Auth();
+  const { status }: any = useWeb3Auth();
+  const [showScreen, setShowScreen] = useState(true)
 
+  useEffect(() => {
+    const handleResize = () => {
+      setShowScreen(window.innerWidth <= 640);
+    };
+  
+    // Call the function once to set the initial state
+    handleResize();
+  
+    // Add the event listener
+    window.addEventListener('resize', handleResize);
+  
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  console.log(window.screen.width)
   return (
-    // <div>
-    <div>
 
-    <Router>
-      <Navbar />
-      {/* <div className='bg-stone-50 h-[90vh]'  style={{ backgroundImage: `url(${logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}> */}
-      <div className="h-full bg-[url('./assets/grid1.png')]" >
-      <Routes>
-        <Route path="*" element={
-          status == ADAPTER_STATUS.CONNECTING &&  <Loader />
-          || status == ADAPTER_STATUS.CONNECTED && <Home />
-          || status == ADAPTER_STATUS.DISCONNECTED && <Login />
-          || status == ADAPTER_STATUS.ERRORED && <ErrorPage/>
-          || status == ADAPTER_STATUS.NOT_READY &&  <Loader />
-          || status == ADAPTER_STATUS.READY &&  <Login />
-          || status == null &&  <Loader />
-        } />
-        <Route path="/checkoutForm" element={ status == ADAPTER_STATUS.CONNECTED ? <CheckoutForm/> : <Navigate to={"/"}/>} />
-        <Route path="/checkout/"element={ status == ADAPTER_STATUS.CONNECTED ? <Checkout/> : <Navigate to={"/"}/> } />
-        <Route path="/DemoCards" element={<DemoCard />} />
-        <Route path="/return" element={ status == ADAPTER_STATUS.CONNECTED && <Return />} />
-        <Route path="/deploy" element={<Deploy />} />
-        <Route path="/error" element={<ErrorPage />} />
-      </Routes>
+
+    showScreen ? <>
+      <CommingSoon/>
+    </> : <>
+      <Router>
+        <Navbar />
+        <div className="h-full bg-[url('./assets/grid1.png')]" >
+          <Routes>
+            <Route path="*" element={
+              status == ADAPTER_STATUS.CONNECTING && <Loader />
+              || status == ADAPTER_STATUS.CONNECTED && <Home />
+              || status == ADAPTER_STATUS.DISCONNECTED && <Login />
+              || status == ADAPTER_STATUS.ERRORED && <ErrorPage />
+              || status == ADAPTER_STATUS.NOT_READY && <Loader />
+              || status == ADAPTER_STATUS.READY && <Login />
+              || status == null && <Loader />
+            } />
+            <Route path="/checkoutForm" element={status == ADAPTER_STATUS.CONNECTED ? <CheckoutForm /> : <Navigate to={"/"} />} />
+            <Route path="/checkout/" element={status == ADAPTER_STATUS.CONNECTED ? <Checkout /> : <Navigate to={"/"} />} />
+            <Route path="/DemoCards" element={<DemoCard />} />
+            <Route path="/return" element={status == ADAPTER_STATUS.CONNECTED && <Return />} />
+            <Route path="/deploy" element={<Deploy />} />
+            <Route path="/error" element={<ErrorPage />} />
+          </Routes>
         </div>
-    </Router>
-    </div>
-   
+      </Router>
+    </>
+
+
+
 
   );
 };
