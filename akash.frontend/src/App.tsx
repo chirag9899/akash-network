@@ -59,7 +59,7 @@ const App: React.FC = () => {
             <Route path="/checkoutForm" element={status == ADAPTER_STATUS.CONNECTED ? <CheckoutForm /> : <Navigate to={"/"} />} />
             <Route path="/checkout/" element={status == ADAPTER_STATUS.CONNECTED ? <Checkout /> : <Navigate to={"/"} />} />
             <Route path="/DemoCards" element={<DemoCard />} />
-            <Route path="/return" element={status == ADAPTER_STATUS.CONNECTED && <Return />} />
+            <Route path="/return" element={ <Return />} />
             <Route path="/deploy" element={<Deploy />} />
             <Route path="/error" element={<ErrorPage />} />
           </Routes>

@@ -113,7 +113,7 @@ const Web3AuthProvider = ({ children, chainConfig }: { children: React.ReactNode
 
                 if (!localStorage.getItem('conversion-timestamp') || parseInt(localStorage.getItem('conversion-timestamp')!) < Date.now() / 1000) {
                     console.log(parseInt(localStorage.getItem('conversion-timestamp')!) , Date.now() / 1000)
-                     await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api//conversionAkt_Usd`)
+                     await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/conversionAkt_Usd`)
                         .then(response => {
                             console.log(response)
                             const conversion = response.data.price;
