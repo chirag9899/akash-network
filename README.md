@@ -129,6 +129,3 @@ The proposed solution will have a profound impact on various stakeholders within
 
 No, the Akash Network is inherently decentralized. The payment processor code is public, enabling anyone to deploy and support custom payment methods. This decentralization ensures that the network is not reliant on any single entity, enhancing security and resilience.
 
-
-## Demo Video
-[![Youtube](https://img.youtube.com/vi/4jDbZYtUyCA/0.jpg)](https://www.youtube.com/watch?v=4jDbZYtUyCA)
