@@ -26,7 +26,7 @@ const Deploy: React.FC = () => {
     const { deploy, getOrdersByOwner }: any = useWeb3Auth();
 
     const data = [
-        { Cpu: 'unit 1', Memory: '512Mi', Storage: '512Mi', Gpu: 'unit 0', Price: '$199', Auction: 'Auction' },
+        { Cpu: 'unit 1', Memory: '512Mi', Storage: '512Mi', Gpu: 'unit 0', Price: '$1', Auction: 'Auction' },
         // { Cpu: 'unit 1', Memory: '512Mi', Storage: '512Mi', Gpu: 'unit 0', Price: '$199' },
         // Add more data as needed
     ];
